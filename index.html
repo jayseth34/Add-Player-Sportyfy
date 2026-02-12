@@ -172,6 +172,13 @@ function getQueryParam(name) {
   const urlParams = new URLSearchParams(window.location.search);
   return urlParams.get(name);
 }
+function showLoader() {
+  document.getElementById("loader").style.display = "flex";
+}
+
+function hideLoader() {
+  document.getElementById("loader").style.display = "none";
+}
 
 async function loadTournament() {
   tournamentId = getQueryParam("tournamentId");
@@ -231,15 +238,12 @@ function setupDynamicField() {
 document.getElementById("playerForm").addEventListener("submit", async function(e) {
   e.preventDefault();
 
-  console.log("Form submit started");
-
   const formData = new FormData();
   formData.append("TournamentId", tournamentId);
   formData.append("Name", document.getElementById("name").value);
   formData.append("Gender", document.getElementById("gender").value);
   formData.append("Age", document.getElementById("age").value);
 
-  // FIXED: send village correctly
   const villageValue = document.getElementById("village").value;
   formData.append("Village", villageValue);
   formData.append("Address", villageValue);
@@ -267,10 +271,7 @@ document.getElementById("playerForm").addEventListener("submit", async function(
 
   formData.append("ProfileImage", fileInput.files[0]);
 
-  // DEBUG: log form fields
-  for (let pair of formData.entries()) {
-    console.log(pair[0] + ": " + pair[1]);
-  }
+  showLoader();
 
   try {
     const res = await fetch(savePlayerApi, {
@@ -278,21 +279,18 @@ document.getElementById("playerForm").addEventListener("submit", async function(
       body: formData
     });
 
-    console.log("Response status:", res.status);
+    hideLoader();
 
-    const text = await res.text();
-    console.log("Response text:", text);
-
-    if (!res.ok) {
-      alert("API Error:\n" + text);
-      return;
+    if (res.ok) {
+      alert("Success");
+      document.getElementById("playerForm").reset();
+    } else {
+      alert("Failed");
     }
 
-    alert("Success:\n");
-
   } catch (err) {
-    console.error("Network error:", err);
-    alert("Network Error: " + err.message);
+    hideLoader();
+    alert("Failed");
   }
 });
 
@@ -300,6 +298,28 @@ document.getElementById("playerForm").addEventListener("submit", async function(
 
 loadTournament();
 </script>
+<div id="loader" style="
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.5);
+  z-index:9999;
+  justify-content:center;
+  align-items:center;
+">
+  <div style="
+    background:white;
+    padding:20px 30px;
+    border-radius:8px;
+    font-size:18px;
+    font-weight:bold;
+  ">
+    Submitting...
+  </div>
+</div>
 
 </body>
 </html>
