@@ -231,16 +231,23 @@ function setupDynamicField() {
 document.getElementById("playerForm").addEventListener("submit", async function(e) {
   e.preventDefault();
 
+  console.log("Form submit started");
+
   const formData = new FormData();
   formData.append("TournamentId", tournamentId);
   formData.append("Name", document.getElementById("name").value);
   formData.append("Gender", document.getElementById("gender").value);
   formData.append("Age", document.getElementById("age").value);
-  formData.append("Village", "");
-  formData.append("Address", document.getElementById("village").value); // empty as requested
+
+  // FIXED: send village correctly
+  const villageValue = document.getElementById("village").value;
+  formData.append("Village", villageValue);
+  formData.append("Address", villageValue);
+
   formData.append("Email", document.getElementById("email").value);
   formData.append("MobNo", document.getElementById("mobNo").value);
   formData.append("Bio", document.getElementById("bio").value);
+
   const playingStyle = document.getElementById("playingStyle").value;
   formData.append("AvailableOnDates", playingStyle);
 
@@ -253,16 +260,42 @@ document.getElementById("playerForm").addEventListener("submit", async function(
   }
 
   const fileInput = document.getElementById("profileImage");
+  if (!fileInput.files[0]) {
+    alert("Please select a profile image");
+    return;
+  }
+
   formData.append("ProfileImage", fileInput.files[0]);
 
-  const res = await fetch(savePlayerApi, {
-    method: "POST",
-    body: formData
-  });
+  // DEBUG: log form fields
+  for (let pair of formData.entries()) {
+    console.log(pair[0] + ": " + pair[1]);
+  }
 
-  const result = await res.json();
-  alert(result.message || "Player saved");
+  try {
+    const res = await fetch(savePlayerApi, {
+      method: "POST",
+      body: formData
+    });
+
+    console.log("Response status:", res.status);
+
+    const text = await res.text();
+    console.log("Response text:", text);
+
+    if (!res.ok) {
+      alert("API Error:\n" + text);
+      return;
+    }
+
+    alert("Success:\n" + text);
+
+  } catch (err) {
+    console.error("Network error:", err);
+    alert("Network Error: " + err.message);
+  }
 });
+
 
 
 loadTournament();
