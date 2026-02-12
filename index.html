@@ -39,11 +39,6 @@
     border-radius: 10px;
   }
 
-  .profile-pic {
-    text-align: center;
-    margin: 20px 0;
-  }
-
   .section-title {
     color: #1e4d8c;
     font-weight: bold;
@@ -113,10 +108,8 @@
 
   <form id="playerForm">
 
-    <div class="profile-pic">
-      <label>Profile Image*</label>
-      <input type="file" id="profileImage" accept="image/*" required>
-    </div>
+    <label>Profile Image*</label>
+    <input type="file" id="profileImage" accept="image/*" required>
 
     <div class="section-title">General Information</div>
 
@@ -134,11 +127,8 @@
     <label>Age*</label>
     <input type="number" id="age" required>
 
-    <label>Village*</label>
+    <label>Village Address*</label>
     <input type="text" id="village" required>
-
-    <label>Address*</label>
-    <textarea id="address" required></textarea>
 
     <label>Email*</label>
     <input type="email" id="email" required>
@@ -149,6 +139,14 @@
     <!-- Dynamic field -->
     <div id="dynamicField"></div>
 
+    <label>Playing Style*</label>
+    <select id="playingStyle" required>
+      <option value="">Select</option>
+      <option>Never Played</option>
+      <option>Sometimes</option>
+      <option>Regular</option>
+    </select>
+
     <label>Bio</label>
     <textarea id="bio"></textarea>
 
@@ -157,7 +155,7 @@
     <div class="note">
       <strong>Note:</strong>
       1500 is the registration fee for mens<br>
-      (Unsold players will get refunded)<br><br>
+      (Unsold players will get refunded)
     </div>
 
   </form>
@@ -193,10 +191,8 @@ async function loadTournament() {
 
   sportType = tournament.sportType;
 
-  // Set title
   document.getElementById("tournamentTitle").innerText = tournament.name;
 
-  // Set image
   if (tournament.profileImage) {
     document.getElementById("tournamentImage").innerHTML =
       `<img src="${tournament.profileImage}" alt="Tournament">`;
@@ -240,11 +236,13 @@ document.getElementById("playerForm").addEventListener("submit", async function(
   formData.append("Name", document.getElementById("name").value);
   formData.append("Gender", document.getElementById("gender").value);
   formData.append("Age", document.getElementById("age").value);
-  formData.append("Village", document.getElementById("village").value);
-  formData.append("Address", document.getElementById("address").value);
+  formData.append("Village", "");
+  formData.append("Address", document.getElementById("village").value); // empty as requested
   formData.append("Email", document.getElementById("email").value);
   formData.append("MobNo", document.getElementById("mobNo").value);
   formData.append("Bio", document.getElementById("bio").value);
+  const playingStyle = document.getElementById("playingStyle").value;
+  formData.append("AvailableOnDates", playingStyle);
 
   if (sportType === "Cricket") {
     formData.append("Handedness", document.getElementById("handedness").value);
@@ -265,6 +263,7 @@ document.getElementById("playerForm").addEventListener("submit", async function(
   const result = await res.json();
   alert(result.message || "Player saved");
 });
+
 
 loadTournament();
 </script>
