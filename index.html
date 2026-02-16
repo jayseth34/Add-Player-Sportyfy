@@ -181,7 +181,7 @@ function hideLoader() {
 }
 
 async function loadTournament() {
-  tournamentId = getQueryParam("tournamentId");
+  tournamentId = getQueryParam("tournamentsId");
   if (!tournamentId) {
     alert("Tournament ID missing in URL");
     return;
